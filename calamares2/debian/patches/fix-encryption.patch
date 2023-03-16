@@ -1,0 +1,87 @@
+diff '--color=auto' -ru ./calamares2/src/modules/partition/core/PartitionActions.cpp ./calamares/src/modules/partition/core/PartitionActions.cpp
+--- ./calamares2/src/modules/partition/core/PartitionActions.cpp	2023-03-16 18:13:50.820009561 +0300
++++ ./calamares/src/modules/partition/core/PartitionActions.cpp	2023-03-16 18:26:32.644589502 +0300
+@@ -174,29 +174,14 @@
+     if ( shouldCreateSwap )
+     {
+         Partition* swapPartition = nullptr;
+-        if ( o.luksPassphrase.isEmpty() )
+-        {
+-            swapPartition = KPMHelpers::createNewPartition( dev->partitionTable(),
+-                                                            *dev,
+-                                                            PartitionRole( PartitionRole::Primary ),
+-                                                            FileSystem::LinuxSwap,
+-                                                            QStringLiteral( "swap" ),
+-                                                            lastSectorForRoot + 1,
+-                                                            dev->totalLogical() - 1,
+-                                                            KPM_PARTITION_FLAG( None ) );
+-        }
+-        else
+-        {
+-            swapPartition = KPMHelpers::createNewEncryptedPartition( dev->partitionTable(),
+-                                                                     *dev,
+-                                                                     PartitionRole( PartitionRole::Primary ),
+-                                                                     FileSystem::LinuxSwap,
+-                                                                     QStringLiteral( "swap" ),
+-                                                                     lastSectorForRoot + 1,
+-                                                                     dev->totalLogical() - 1,
+-                                                                     o.luksPassphrase,
+-                                                                     KPM_PARTITION_FLAG( None ) );
+-        }
++        swapPartition = KPMHelpers::createNewPartition( dev->partitionTable(),
++                                                        *dev,
++                                                        PartitionRole( PartitionRole::Primary ),
++                                                        FileSystem::LinuxSwap,
++                                                        QStringLiteral( "swap" ),
++                                                        lastSectorForRoot + 1,
++                                                        dev->totalLogical() - 1,
++                                                        KPM_PARTITION_FLAG( None ) );
+         PartitionInfo::setFormat( swapPartition, true );
+         if ( gs->contains( "swapPartitionName" ) )
+         {
+diff '--color=auto' -ru ./calamares2/src/modules/partition/core/PartitionLayout.cpp ./calamares/src/modules/partition/core/PartitionLayout.cpp
+--- ./calamares2/src/modules/partition/core/PartitionLayout.cpp	2023-03-16 18:13:50.823342902 +0300
++++ ./calamares/src/modules/partition/core/PartitionLayout.cpp	2023-03-16 18:28:02.722345760 +0300
+@@ -310,15 +310,33 @@
+         }
+         else
+         {
+-            part = KPMHelpers::createNewEncryptedPartition( parent,
+-                                                            *dev,
+-                                                            role,
+-                                                            correctFS( entry.partFileSystem ),
+-                                                            entry.partLabel,
+-                                                            currentSector,
+-                                                            currentSector + sectors - 1,
+-                                                            luksPassphrase,
+-                                                            KPM_PARTITION_FLAG( None ) );
++            if ( !luksPassphrase.isEmpty() )
++            {
++               if ( entry.partMountPoint == "/boot" || correctFS( entry.partFileSystem ) == FileSystem::LinuxSwap)
++               {
++                   part = KPMHelpers::createNewPartition( parent,
++                                                           *dev,
++                                                           role,
++                                                           correctFS( entry.partFileSystem ),
++                                                           entry.partLabel,
++                                                           currentSector,
++                                                           currentSector + sectors - 1,
++                                                           KPM_PARTITION_FLAG( None ) );
++               }
++               else
++               {
++                    part = KPMHelpers::createNewEncryptedPartition( parent,
++                                                                    *dev,
++                                                                    role,
++                                                                    correctFS( entry.partFileSystem ),
++                                                                    entry.partLabel,
++                                                                    currentSector,
++                                                                    currentSector + sectors - 1,
++                                                                    luksFsType,
++                                                                    luksPassphrase,
++                                                                    KPM_PARTITION_FLAG( None ) );
++               }
++            }
+         }
+ 
+         // For zfs, we need to make the passphrase available to later modules
