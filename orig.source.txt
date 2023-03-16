@@ -1,1 +1,1 @@
-https://github.com/elFarto/nvidia-vaapi-driver
+https://github.com/calamares/calamares
