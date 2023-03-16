@@ -7,8 +7,8 @@ add-apt-repository ppa:pikaos/pika
 add-apt-repository ppa:kubuntu-ppa/backports
 
 # Clone Upstream
-git clone https://github.com/calamares/calamares -b v3.3.0-alpha2
-cp -rvf ./debian ./calamares/
+#git clone https://github.com/calamares/calamares -b v3.3.0-alpha2
+#cp -rvf ./debian ./calamares/
 cd ./calamares
 
 # Get build deps
