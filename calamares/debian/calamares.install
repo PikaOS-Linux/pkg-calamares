@@ -1,2 +1,1 @@
-usr
-etc
+calamares.py usr/share/apport/package-hooks
