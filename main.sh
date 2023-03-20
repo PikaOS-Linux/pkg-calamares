@@ -1,3 +1,5 @@
+#! /bin/bash
+set -e
 DEBIAN_FRONTEND=noninteractive
 
 # Add dependent repositories
@@ -14,11 +16,11 @@ for i in ../patches/*; do patch -Np1 -i $i ;done
 
 # Get build deps
 ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
-apt-get build-dep ./ -y
+DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata || true
+apt-get build-dep ./ -y || true
 
 # Build package
-LOGNAME=root dh_make --createorig -y -l -p calamares_3.3.0-alpha2
+LOGNAME=root dh_make --createorig -y -l -p calamares_3.3.0-alpha2 || true
 dpkg-buildpackage
 
 # Move the debs to output
