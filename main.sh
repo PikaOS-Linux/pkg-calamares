@@ -21,7 +21,7 @@ apt-get build-dep ./ -y || true
 
 # Build package
 LOGNAME=root dh_make --createorig -y -l -p calamares_3.3.0-alpha2 || true
-dpkg-buildpackage
+dpkg-buildpackage --no-sign
 
 # Move the debs to output
 cd ../
