@@ -10,6 +10,7 @@ add-apt-repository ppa:kubuntu-ppa/backports
 #git clone https://github.com/calamares/calamares -b v3.3.0-alpha2
 #cp -rvf ./calamares2 ./calamares
 cd ./calamares
+for i in ../patches/*; do patch -Np1 -i $i ;done
 
 # Get build deps
 ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime

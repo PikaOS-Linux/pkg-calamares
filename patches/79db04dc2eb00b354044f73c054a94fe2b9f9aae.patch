@@ -1,0 +1,17 @@
+--- b/src/modules/locale/Config.cpp
++++ a/src/modules/locale/Config.cpp
+@@ -305,14 +305,8 @@
+     {
+         return LocaleConfiguration();
+     }
++    return LocaleConfiguration::fromLanguageAndLocation(
++        QLocale().name(), supportedLocales(), currentLocation()->country() );
+-
+-    auto* gs = Calamares::JobQueue::instance()->globalStorage();
+-    QString lang = CalamaresUtils::Locale::readGS( *gs, QStringLiteral( "LANG" ) );
+-    if ( lang.isEmpty() )
+-    {
+-        lang = QLocale().name();
+-    }
+-    return LocaleConfiguration::fromLanguageAndLocation( lang, supportedLocales(), currentLocation()->country() );
+ }

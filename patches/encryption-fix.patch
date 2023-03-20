@@ -1,0 +1,101 @@
+From 2ccb8d0629370092b6f77c87f87784f64d94cffc Mon Sep 17 00:00:00 2001
+From: GloriousEggroll <gloriouseggroll@gmail.com>
+Date: Thu, 2 Mar 2023 19:38:11 -0700
+Subject: [PATCH 5/5] Apply default settings for Fedora
+
+---
+diff --git a/src/modules/partition/core/PartitionActions.cpp b/src/modules/partition/core/PartitionActions.cpp
+index 2287c57..45eaec1 100644
+--- a/src/modules/partition/core/PartitionActions.cpp
++++ b/src/modules/partition/core/PartitionActions.cpp
+@@ -174,30 +174,15 @@ doAutopartition( PartitionCoreModule* core, Device* dev, Choices::AutoPartitionO
+     if ( shouldCreateSwap )
+     {
+         Partition* swapPartition = nullptr;
+-        if ( o.luksPassphrase.isEmpty() )
+-        {
+-            swapPartition = KPMHelpers::createNewPartition( dev->partitionTable(),
+-                                                            *dev,
+-                                                            PartitionRole( PartitionRole::Primary ),
+-                                                            FileSystem::LinuxSwap,
+-                                                            QStringLiteral( "swap" ),
+-                                                            lastSectorForRoot + 1,
+-                                                            dev->totalLogical() - 1,
+-                                                            KPM_PARTITION_FLAG( None ) );
+-        }
+-        else
+-        {
+-            swapPartition = KPMHelpers::createNewEncryptedPartition( dev->partitionTable(),
+-                                                                     *dev,
+-                                                                     PartitionRole( PartitionRole::Primary ),
+-                                                                     FileSystem::LinuxSwap,
+-                                                                     QStringLiteral( "swap" ),
+-                                                                     lastSectorForRoot + 1,
+-                                                                     dev->totalLogical() - 1,
+-                                                                     o.luksFsType,
+-                                                                     o.luksPassphrase,
+-                                                                     KPM_PARTITION_FLAG( None ) );
+-        }
++        swapPartition = KPMHelpers::createNewPartition( dev->partitionTable(),
++                                                        *dev,
++                                                        PartitionRole( PartitionRole::Primary ),
++                                                        FileSystem::LinuxSwap,
++                                                        QStringLiteral( "swap" ),
++                                                        lastSectorForRoot + 1,
++                                                        dev->totalLogical() - 1,
++                                                        KPM_PARTITION_FLAG( None ) );
++
+         PartitionInfo::setFormat( swapPartition, true );
+         if ( gs->contains( "swapPartitionName" ) )
+         {
+diff --git a/src/modules/partition/core/PartitionLayout.cpp b/src/modules/partition/core/PartitionLayout.cpp
+index 61c7010..6ce395c 100644
+--- a/src/modules/partition/core/PartitionLayout.cpp
++++ b/src/modules/partition/core/PartitionLayout.cpp
+@@ -310,17 +310,35 @@ PartitionLayout::createPartitions( Device* dev,
+                                                    KPM_PARTITION_FLAG( None ) );
+         }
+         else
+-        {
+-            part = KPMHelpers::createNewEncryptedPartition( parent,
+-                                                            *dev,
+-                                                            role,
+-                                                            correctFS( entry.partFileSystem ),
+-                                                            entry.partLabel,
+-                                                            currentSector,
+-                                                            currentSector + sectors - 1,
+-                                                            luksFsType,
+-                                                            luksPassphrase,
+-                                                            KPM_PARTITION_FLAG( None ) );
++        {
++            if ( !luksPassphrase.isEmpty() )
++            {
++               if ( entry.partMountPoint == "/boot" || correctFS( entry.partFileSystem ) == FileSystem::LinuxSwap)
++               {
++                   part = KPMHelpers::createNewPartition( parent,
++                                                           *dev,
++                                                           role,
++                                                           correctFS( entry.partFileSystem ),
++                                                           entry.partLabel,
++                                                           currentSector,
++                                                           currentSector + sectors - 1,
++                                                           KPM_PARTITION_FLAG( None ) );
++               }
++               else
++               {
++                    part = KPMHelpers::createNewEncryptedPartition( parent,
++                                                                    *dev,
++                                                                    role,
++                                                                    correctFS( entry.partFileSystem ),
++                                                                    entry.partLabel,
++                                                                    currentSector,
++                                                                    currentSector + sectors - 1,
++                                                                    luksFsType,
++                                                                    luksPassphrase,
++                                                                    KPM_PARTITION_FLAG( None ) );
++               }
++            }
++
+         }
+
+         // For zfs, we need to make the passphrase available to later modules
