@@ -1,0 +1,53 @@
+From 17ba67827b66cd49b876f5c5cdd6e3ff88598de5 Mon Sep 17 00:00:00 2001
+From: Ivan Borzenkov <ivan.borzenkov@gmail.com>
+Date: Mon, 8 May 2023 10:32:54 +0300
+Subject: [PATCH] fix non ascii keyboard
+
+---
+ src/modules/keyboard/SetKeyboardLayoutJob.cpp | 33 +++++++++++++++++--
+ 1 file changed, 30 insertions(+), 3 deletions(-)
+
+diff --git a/src/modules/keyboard/SetKeyboardLayoutJob.cpp b/src/modules/keyboard/SetKeyboardLayoutJob.cpp
+index c80d84e7de..f080e312c2 100644
+--- a/src/modules/keyboard/SetKeyboardLayoutJob.cpp
++++ b/src/modules/keyboard/SetKeyboardLayoutJob.cpp
+@@ -324,9 +324,36 @@ SetKeyboardLayoutJob::writeDefaultKeyboardData( const QString& defaultKeyboardPa
+               "# Consult the keyboard(5) manual page.\n\n";
+ 
+     stream << "XKBMODEL=\"" << m_model << "\"\n";
+-    stream << "XKBLAYOUT=\"" << m_layout << "\"\n";
+-    stream << "XKBVARIANT=\"" << m_variant << "\"\n";
+-    stream << "XKBOPTIONS=\"\"\n\n";
++    if ( m_additionalLayoutInfo.additionalLayout.isEmpty() )
++    {
++        if ( !m_layout.isEmpty() )
++        {
++            stream << "XKBLAYOUT=\"" << m_layout << "\"\n";
++        }
++
++        if ( !m_variant.isEmpty() )
++        {
++            stream << "XKBVARIANT=\"" << m_variant << "\"\n";
++        }
++
++        stream << "XKBOPTIONS=\"\"\n\n";
++    }
++    else
++    {
++        if ( !m_layout.isEmpty() )
++        {
++            stream << "XKBLAYOUT=\"" << m_additionalLayoutInfo.additionalLayout << "," << m_layout
++                   << "\"\n";
++        }
++
++        if ( !m_variant.isEmpty() )
++        {
++            stream << "XKBVARIANT=\"" << m_additionalLayoutInfo.additionalVariant << "," << m_variant
++                   << "\"\n";
++        }
++
++        stream << "XKBOPTIONS=\"" << m_additionalLayoutInfo.groupSwitcher << "\"\n";
++    }
+     stream << "BACKSPACE=\"guess\"\n";
+     stream.flush();
+ 
