@@ -1,3 +1,9 @@
+calamares (3.3.0-alpha2-100pika1) pikauwu; urgency=medium
+
+  * Update for pikauwu
+
+ -- AMD Kings <amdr@kings.com>  Sat, 03 Sep 2022 13:04:56 +0000
+
 calamares (3.3.0-alpha2-99pika69) lunar; urgency=medium
 
   * Update for lunar
